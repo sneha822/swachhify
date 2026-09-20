@@ -16,4 +16,5 @@ USER swacchify
 
 EXPOSE 8000
 # Migrations run first; seeding is idempotent and happens on startup.
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips='*'"]
+# $PORT is injected by most hosts (Render, Railway, Fly); 8000 is the local default.
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]

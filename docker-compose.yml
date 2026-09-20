@@ -36,7 +36,7 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      CORS_ORIGINS: '["http://localhost:8080"]'
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
       MEDIA_DIR: /app/media
     volumes: [media:/app/media]

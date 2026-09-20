@@ -52,7 +52,7 @@ app = FastAPI(
     description="Know Your Waste. Do the Right Thing. — household waste guidance, pickups, learning and rewards.",
     lifespan=lifespan,
 )
-app.add_middleware(CORSMiddleware, allow_origins=settings.CORS_ORIGINS, allow_credentials=True,
+app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_credentials=True,
                    allow_methods=["*"], allow_headers=["*"])
 
 api = APIRouter(prefix="/api/v1")

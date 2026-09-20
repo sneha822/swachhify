@@ -1,0 +1,63 @@
+# Render Blueprint — deploys the whole app from this repo.
+#   Render Dashboard → New → Blueprint → pick this repo → Apply
+# You're asked for the values marked `sync: false` during setup; see docs/DEPLOY.md.
+
+databases:
+  - name: swacchify-db
+    databaseName: swacchify
+    user: swacchify
+    plan: free # Render's free Postgres expires after 30 days — see docs/DEPLOY.md for alternatives
+
+services:
+  # ── API (FastAPI in Docker; runs `alembic upgrade head` on every boot) ──────────────
+  - name: swacchify-api
+    type: web
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: swacchify-db
+          property: connectionString
+      - key: ENV
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: AUTO_CREATE_TABLES
+        value: "false" # migrations own the schema in production
+      - key: SEED_DEMO_DATA
+        value: "true" # set to false for a real deployment
+      # Set after the first deploy, once you know your site's URL (e.g. https://swacchify-web.onrender.com)
+      - key: CORS_ORIGINS
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      # Optional: without it the assistant answers from the built-in knowledge base only
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # Optional: the first admin account on a fresh database
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+
+  # ── Web app (Vite build served as a static site) ───────────────────────────────────
+  - name: swacchify-web
+    type: web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      # Your API address + /api/v1, e.g. https://swacchify-api.onrender.com/api/v1
+      - key: VITE_API_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

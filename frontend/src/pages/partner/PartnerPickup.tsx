@@ -35,7 +35,7 @@ import {
   Toggle,
   buttonStyles,
 } from "@/components/ui";
-import { get, post } from "@/lib/api";
+import { get, post, mediaUrl } from "@/lib/api";
 import { cn, fmtDateTime, fmtKg, pick } from "@/lib/format";
 import { useCategoryMap, useDocumentTitle } from "@/lib/hooks";
 import { useI18n } from "@/lib/i18n";
@@ -185,7 +185,7 @@ function CollectForm({ pickup, onSubmit, submitting }: { pickup: Pickup; onSubmi
     onSubmit(actual);
   };
 
-  const photo = preview ?? pickup.proof_url;
+  const photo = preview ?? mediaUrl(pickup.proof_url);
 
   return (
     <div className="space-y-5">
@@ -641,7 +641,7 @@ export default function PartnerPickup() {
           {p.proof_url && p.status !== "arrived" && (
             <Card as="section" className="p-4 sm:p-5">
               <SectionTitle>{t("pickup.proof")}</SectionTitle>
-              <img src={p.proof_url} alt={t("pickup.proof")} className="max-h-72 w-full rounded-lg object-cover" />
+              <img src={mediaUrl(p.proof_url)} alt={t("pickup.proof")} className="max-h-72 w-full rounded-lg object-cover" />
             </Card>
           )}
         </div>

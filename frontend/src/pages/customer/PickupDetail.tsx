@@ -5,7 +5,7 @@ import { Link, useParams } from "react-router";
 import { MapView, PIN_HOME, PIN_VEHICLE, type MapPin as Pin } from "@/components/MapView";
 import { StatusPill, StatusTracker } from "@/components/PickupStatus";
 import { Badge, Button, buttonStyles, Card, ErrorState, IconBox, Modal, PageHeader, PageSkeleton, SectionTitle, Stars } from "@/components/ui";
-import { get, post } from "@/lib/api";
+import { get, mediaUrl, post } from "@/lib/api";
 import { cn, fmtDate, fmtDateTime, fmtKg, slotLabel } from "@/lib/format";
 import { useCategoryMap, useDocumentTitle } from "@/lib/hooks";
 import { useI18n } from "@/lib/i18n";
@@ -128,7 +128,7 @@ export default function PickupDetail() {
             {p.proof_url && (
               <div className="mt-4">
                 <p className="mb-2 text-sm font-semibold">{t("pickup.proof")}</p>
-                <img src={p.proof_url} alt={t("pickup.proof")} className="max-h-64 rounded-xl border border-line object-cover" />
+                <img src={mediaUrl(p.proof_url)} alt={t("pickup.proof")} className="max-h-64 rounded-xl border border-line object-cover" />
               </div>
             )}
           </Card>

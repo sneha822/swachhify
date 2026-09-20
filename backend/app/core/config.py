@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -24,7 +25,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "dev-only-change-me-in-production-please-32+chars"
     ACCESS_TOKEN_MINUTES: int = 30
     REFRESH_TOKEN_DAYS: int = 14
-    CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    # Comma-separated so it can be pasted straight into a hosting dashboard; read via `cors_origins`.
+    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173"
     FRONTEND_URL: str = "http://localhost:5173"
 
     # AI. With no credentials the assistant answers from the curated knowledge base only.
@@ -55,6 +57,27 @@ class Settings(BaseSettings):
     SLOT_CAPACITY: int = 20
     AVG_CITY_SPEED_KMPH: float = 18.0
     PARTNER_BASE_FEE: float = 30.0  # INR per completed pickup, plus per-kg category rate
+
+    @property
+    def cors_origins(self) -> list[str]:
+        """Accepts "a,b" or a JSON array, and tolerates trailing slashes."""
+        raw = self.CORS_ORIGINS.strip()
+        if raw.startswith("["):
+            import json
+
+            return [str(o).rstrip("/") for o in json.loads(raw)]
+        return [o.strip().rstrip("/") for o in raw.split(",") if o.strip()]
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def _database_url(cls, v):
+        """Hosts hand out `postgres://` URLs; SQLAlchemy 2 needs an explicit driver."""
+        if isinstance(v, str):
+            if v.startswith("postgres://"):
+                return v.replace("postgres://", "postgresql+psycopg://", 1)
+            if v.startswith("postgresql://"):
+                return v.replace("postgresql://", "postgresql+psycopg://", 1)
+        return v
 
     @property
     def is_sqlite(self) -> bool:

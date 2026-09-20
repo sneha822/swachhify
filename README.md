@@ -57,6 +57,12 @@ set ANTHROPIC_API_KEY=sk-ant-...   # macOS/Linux: export ANTHROPIC_API_KEY=...
 
 `GET /api/v1/ai/status` reports which mode is active.
 
+## Deploying
+
+**[docs/DEPLOY.md](docs/DEPLOY.md)** covers three routes: a Render blueprint (`render.yaml` in this repo, free
+tier, ~15 minutes), Railway, and Docker Compose on your own server — plus the go-live checklist and what the
+free tiers can't do.
+
 ## Production (Docker)
 
 ```bash

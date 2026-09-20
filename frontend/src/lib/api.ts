@@ -121,6 +121,17 @@ export function wsUrl(): string | null {
   return `${base}/ws?token=${encodeURIComponent(tokens.access)}`;
 }
 
+/**
+ * Absolute URL for an uploaded file. The API returns "/media/…", which only resolves on its own
+ * origin — in production the site and the API are usually on different domains.
+ */
+export function mediaUrl(path: string | null | undefined): string | undefined {
+  if (!path) return undefined;
+  if (/^https?:\/\//.test(path)) return path;
+  if (BASE.startsWith("http")) return new URL(path, BASE).origin + path;
+  return path;
+}
+
 export function qs(params: Record<string, string | number | boolean | null | undefined>): string {
   const s = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== null && v !== "") s.set(k, String(v));

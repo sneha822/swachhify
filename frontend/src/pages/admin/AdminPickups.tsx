@@ -32,7 +32,7 @@ import {
   Skeleton,
   Textarea,
 } from "@/components/ui";
-import { get, post, qs } from "@/lib/api";
+import { get, post, qs, mediaUrl } from "@/lib/api";
 import { useCategoryMap, useDocumentTitle } from "@/lib/hooks";
 import { cn, fmtDate, fmtKg, fmtNum, timeAgo } from "@/lib/format";
 import { useToast } from "@/lib/toast";
@@ -518,8 +518,8 @@ function VerifyModal({ pickup, onClose }: { pickup: AdminPickup; onClose: () => 
 
         {pickup.proof_url && (
           <figure>
-            <a href={pickup.proof_url} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-lg border border-line">
-              <img src={pickup.proof_url} alt={`Proof photo for pickup ${pickup.code}`} className="max-h-64 w-full bg-canvas object-contain" />
+            <a href={mediaUrl(pickup.proof_url)} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-lg border border-line">
+              <img src={mediaUrl(pickup.proof_url)} alt={`Proof photo for pickup ${pickup.code}`} className="max-h-64 w-full bg-canvas object-contain" />
             </a>
             <figcaption className="mt-1.5 text-xs text-muted">Proof photo from the collection partner · opens full size</figcaption>
           </figure>
