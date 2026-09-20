@@ -1,4 +1,9 @@
-const BASE = import.meta.env.VITE_API_URL ?? "/api/v1";
+const envApiUrl = typeof process !== "undefined" ? process.env?.NEXT_PUBLIC_API_URL : undefined;
+
+const BASE = 
+  import.meta.env.VITE_API_URL || 
+  envApiUrl || 
+  "https://swachhify.onrender.com/api/v1";
 const ACCESS = "swacchify.access";
 const REFRESH = "swacchify.refresh";
 
