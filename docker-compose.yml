@@ -1,0 +1,73 @@
+# Full stack: PostgreSQL, Redis, API, Celery worker + beat, and the web app behind Nginx.
+#   docker compose up --build        → http://localhost:8080
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: swacchify
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-swacchify}
+      POSTGRES_DB: swacchify
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U swacchify"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment: &backend-env
+      ENV: ${ENV:-production}
+      DEBUG: ${DEBUG:-false}
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      DATABASE_URL: postgresql+psycopg://swacchify:${POSTGRES_PASSWORD:-swacchify}@db:5432/swacchify
+      REDIS_URL: redis://redis:6379/0
+      AUTO_CREATE_TABLES: "false"
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CORS_ORIGINS: '["http://localhost:8080"]'
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+      MEDIA_DIR: /app/media
+    volumes: [media:/app/media]
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+      interval: 10s
+      retries: 12
+
+  worker:
+    build: ./backend
+    command: celery -A app.worker worker -l info
+    environment: *backend-env
+    depends_on:
+      backend: { condition: service_healthy }
+
+  beat:
+    build: ./backend
+    command: celery -A app.worker beat -l info --schedule /tmp/celerybeat-schedule
+    environment: *backend-env
+    depends_on:
+      backend: { condition: service_healthy }
+
+  frontend:
+    build: ./frontend
+    ports: ["8080:80"]
+    depends_on:
+      backend: { condition: service_healthy }
+
+volumes:
+  pgdata:
+  media:

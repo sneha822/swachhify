@@ -1,0 +1,105 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  --font-sans: "Inter", "Noto Sans Devanagari", ui-sans-serif, system-ui, sans-serif;
+
+  /* Brand green — used for primary actions and selected state, not decoration. */
+  --color-brand-50: #eff7f1;
+  --color-brand-100: #d7ecdd;
+  --color-brand-200: #aed9bc;
+  --color-brand-300: #7cc095;
+  --color-brand-400: #4aa271;
+  --color-brand-500: #2b8656;
+  --color-brand-600: #1f6d46;
+  --color-brand-700: #175939;
+  --color-brand-800: #13472e;
+  --color-brand-900: #0f3a26;
+  --color-brand-950: #082417;
+
+  --color-forest-600: #1f6d46;
+  --color-forest-700: #175939;
+  --color-forest-800: #113b27;
+  --color-forest-900: #0b2619;
+
+  /* Informational accent, kept for links/among-charts use only. */
+  --color-sea-50: #eef5fb;
+  --color-sea-100: #d9e9f6;
+  --color-sea-500: #2a78d6;
+  --color-sea-600: #1f62b4;
+  --color-sea-700: #1a5192;
+
+  /* Neutrals: slightly warm greys so the green never reads as neon. */
+  --color-canvas: #f7f9f8;
+  --color-surface: #ffffff;
+  --color-ink: #101613;
+  --color-ink-2: #3c4a43;
+  --color-muted: #66756d;
+  --color-line: #e5eae7;
+  --color-line-strong: #cfd8d3;
+
+  --radius-card: 0.875rem;
+
+  /* One quiet elevation for resting surfaces, one for things that float. */
+  --shadow-soft: 0 1px 2px rgb(16 22 19 / 0.04), 0 1px 3px rgb(16 22 19 / 0.05);
+  --shadow-lift: 0 2px 4px -2px rgb(16 22 19 / 0.06), 0 12px 20px -8px rgb(16 22 19 / 0.14);
+
+  --animate-fade: fade 0.16s ease-out both;
+  --animate-pop: pop 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pop {
+  from { opacity: 0; transform: translateY(4px) scale(0.99); }
+  to { opacity: 1; transform: none; }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-canvas text-ink antialiased;
+    font-feature-settings: "cv05", "cv11";
+    letter-spacing: -0.006em;
+  }
+  h1, h2, h3, h4 {
+    letter-spacing: -0.018em;
+    text-wrap: balance;
+  }
+  /* Devanagari needs more line height and no negative tracking. */
+  [lang="hi"], :lang(hi) {
+    letter-spacing: 0;
+    line-height: 1.7;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-600;
+  }
+  button, [role="button"] { @apply cursor-pointer; }
+  button:disabled { @apply cursor-not-allowed; }
+  ::selection { @apply bg-brand-100 text-brand-900; }
+}
+
+@layer utilities {
+  .pb-safe { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .text-balance { text-wrap: balance; }
+  /* Section label above a group of content. */
+  .eyebrow { @apply text-xs font-semibold tracking-wide text-muted uppercase; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.leaflet-container { font-family: inherit; border-radius: inherit; }
+.leaflet-container .leaflet-control-attribution { font-size: 10px; background: rgb(255 255 255 / 0.85); }
+.map-pin { background: transparent; border: 0; }

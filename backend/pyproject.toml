@@ -1,0 +1,21 @@
+[project]
+name = "swacchify-backend"
+version = "1.0.0"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 130
+target-version = "py312"
+extend-exclude = ["migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E741", "B008", "B904", "I001"]
+
+[tool.ruff.lint.per-file-ignores]
+"app/seed/*" = ["E501"]  # bilingual content strings
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q -p no:cacheprovider"
+filterwarnings = ["ignore::DeprecationWarning"]
