@@ -26,6 +26,7 @@ from app.api.v1 import (
 from app.core.config import settings
 from app.core.database import Base, SessionLocal, engine
 from app.core.security import decode_token
+from app.models.user import User  # Imported User model for promotion
 from app.seed.run import run as run_seed
 from app.services.realtime import hub
 
@@ -39,6 +40,18 @@ async def lifespan(_: FastAPI):
         Base.metadata.create_all(engine)
     with SessionLocal() as db:
         run_seed(db)
+        
+        # --- TEMPORARY ADMIN PROMOTION ---
+        try:
+            target_user = db.query(User).filter(User.email == "snehakri82278@gmail.com").first()
+            if target_user:
+                target_user.role = "admin"  # Adjust attribute name if your schema uses role / is_superuser
+                db.commit()
+                log.info("Successfully promoted snehakri82278@gmail.com to Admin!")
+        except Exception as e:
+            log.error(f"Failed to promote admin: {e}")
+        # ----------------------------------
+
     if settings.ENV == "production" and settings.SECRET_KEY.startswith("dev-only"):
         raise RuntimeError("Set SECRET_KEY before running in production")
     await hub.start()
@@ -52,8 +65,18 @@ app = FastAPI(
     description="Know Your Waste. Do the Right Thing. — household waste guidance, pickups, learning and rewards.",
     lifespan=lifespan,
 )
-app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_credentials=True,
-                   allow_methods=["*"], allow_headers=["*"])
+
+@app.get("/")
+def read_root():
+    return {"status": "ok", "message": "Swachhify API is running"}
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 api = APIRouter(prefix="/api/v1")
 for module in (auth, users, households, waste, ai, learning, pickups, partners, industries, rewards, impact,
